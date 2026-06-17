@@ -2,6 +2,7 @@ import React from "react";
 
 import Button from "../Button";
 import Toast from "../Toast";
+import ToastShelf from "../ToastShelf";
 
 import styles from "./ToastPlayground.module.css";
 
@@ -13,14 +14,29 @@ function ToastPlayground() {
   const [messageVariant, setMessageVariant] = React.useState(
     VARIANT_OPTIONS[0]
   );
-  const [showToast, setShowToast] = React.useState(false);
 
-  const handlePop = () => {
-    setShowToast(true);
+  const [toastRack, setToastRack] = React.useState([]);
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    const nextToastRack = [
+      ...toastRack,
+      {
+        message,
+        messageVariant,
+        id: crypto.randomUUID(),
+      },
+    ];
+    setToastRack(nextToastRack);
+    setMessage("");
+    setMessageVariant(VARIANT_OPTIONS[0]);
   };
 
-  const handleDismiss = () => {
-    setShowToast(false);
+  const handleDismiss = (id) => {
+    const nextToastRack = toastRack.filter((toast) => {
+      return toast.id !== id;
+    });
+    setToastRack(nextToastRack);
   };
 
   return (
@@ -30,13 +46,11 @@ function ToastPlayground() {
         <h1>Toast Playground</h1>
       </header>
 
-      {showToast && (
-        <Toast messageVariant={messageVariant} handleDismiss={handleDismiss}>
-          {message}
-        </Toast>
+      {toastRack.length > 0 && (
+        <ToastShelf toastRack={toastRack} handleDismiss={handleDismiss} />
       )}
 
-      <div className={styles.controlsWrapper}>
+      <form className={styles.controlsWrapper} onSubmit={handleSubmit}>
         <div className={styles.row}>
           <label
             htmlFor="message"
@@ -84,10 +98,10 @@ function ToastPlayground() {
         <div className={styles.row}>
           <div className={styles.label} />
           <div className={`${styles.inputWrapper} ${styles.radioWrapper}`}>
-            <Button onClick={handlePop}>Pop Toast!</Button>
+            <Button>Pop Toast!</Button>
           </div>
         </div>
-      </div>
+      </form>
     </div>
   );
 }
