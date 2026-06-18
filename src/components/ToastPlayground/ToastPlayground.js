@@ -1,8 +1,8 @@
 import React from "react";
 
 import Button from "../Button";
-import Toast from "../Toast";
 import ToastShelf from "../ToastShelf";
+import { ToastContext } from "../ToastProvider";
 
 import styles from "./ToastPlayground.module.css";
 
@@ -15,28 +15,13 @@ function ToastPlayground() {
     VARIANT_OPTIONS[0]
   );
 
-  const [toastRack, setToastRack] = React.useState([]);
+  const { toastRack, createToast } = React.useContext(ToastContext);
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const nextToastRack = [
-      ...toastRack,
-      {
-        message,
-        messageVariant,
-        id: crypto.randomUUID(),
-      },
-    ];
-    setToastRack(nextToastRack);
+    createToast(message, messageVariant);
     setMessage("");
     setMessageVariant(VARIANT_OPTIONS[0]);
-  };
-
-  const handleDismiss = (id) => {
-    const nextToastRack = toastRack.filter((toast) => {
-      return toast.id !== id;
-    });
-    setToastRack(nextToastRack);
   };
 
   return (
@@ -46,9 +31,7 @@ function ToastPlayground() {
         <h1>Toast Playground</h1>
       </header>
 
-      {toastRack.length > 0 && (
-        <ToastShelf toastRack={toastRack} handleDismiss={handleDismiss} />
-      )}
+      {toastRack.length > 0 && <ToastShelf />}
 
       <form className={styles.controlsWrapper} onSubmit={handleSubmit}>
         <div className={styles.row}>
